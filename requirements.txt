@@ -1,4 +1,4 @@
-# kurigram==2.2.6
+kurigram==2.2.6
 tgcrypto==1.2.5
 nest-asyncio
-pyrogram
+# pyrogram
