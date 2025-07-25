@@ -1,4 +1,5 @@
 kurigram==2.2.6
 tgcrypto==1.2.5
 nest-asyncio
+python-dotenv
 # pyrogram
