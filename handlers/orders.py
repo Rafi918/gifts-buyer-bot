@@ -1,5 +1,5 @@
-import json
-import os
+from database.crud import add_order, get_orders, remove_order
+from constants.texts import TEXTS
 from keyboards.reply import (
     get_orders_menu,
     get_order_remove_keyboard,
@@ -7,88 +7,83 @@ from keyboards.reply import (
     get_return_menu,
     get_main_menu
 )
-from constants.texts import TEXTS
-
-ORDERS_FILE = "data/orders.json"
-
-# ✅ Load orders from file
-
-
-def load_orders():
-    if not os.path.exists(ORDERS_FILE):
-        return {}
-    with open(ORDERS_FILE, "r", encoding="utf-8") as f:
-        return json.load(f)
-
-# ✅ Save orders to file
-
-
-def save_orders(data):
-    with open(ORDERS_FILE, "w", encoding="utf-8") as f:
-        json.dump(data, f, indent=2)
-
-
-orders_store = load_orders()
 
 
 async def handle_orders(client, message, state, user_data):
-    user_id = str(message.from_user.id)  # Store user_id as str for JSON
+    user_id = message.from_user.id
     text = message.text.strip()
 
+    # 🔄 Step 1: Adding order (user inputs order details)
     if state == "adding_order":
         parts = text.split()
-        if len(parts) == 6 and parts[0].lower() == "auto" and all(p.isdigit() for p in parts[1:5]):
-            user_data[user_id] = {"new_order": text}
-            await message.reply(TEXTS["add_order_confirm"].format(text), reply_markup=get_confirmation_menu())
+        if len(parts) == 7 and parts[0].lower() == "auto" and all(p.isdigit() for p in parts[1:]):
+            _, min_stars, max_stars, min_supply, max_supply, count, receiver_id = parts
+            user_data[user_id] = {
+                "order": (int(min_stars), int(max_stars), int(min_supply), int(max_supply), int(count), int(receiver_id))
+            }
+            await message.reply(TEXTS["add_order_confirm"].format(min_stars, max_stars, min_supply, max_supply, count, receiver_id), reply_markup=get_confirmation_menu())
             return "confirming_order"
         else:
-            await message.reply(TEXTS["invalid_format"])
+            await message.reply(TEXTS["invalid_format"], reply_markup=get_return_menu())
             return "adding_order"
 
-    elif state == "confirming_order":
+    # 🔄 Step 2: Confirming order (user confirms "Yes" or "No")
+    if state == "confirming_order":
         if text == "Yes":
-            order = user_data[user_id]["new_order"]
-            orders_store.setdefault(user_id, []).append(order)
-            save_orders(orders_store)
+            await add_order(user_id, *user_data[user_id]["order"])
             await message.reply("✅ Order added.", reply_markup=get_main_menu())
             return None
-        elif text == "No":
+        if text == "No":
             await message.reply("❌ Order cancelled. Enter a new order:", reply_markup=get_return_menu())
             return "adding_order"
         else:
             await message.reply("Please confirm with 'Yes' or 'No'.", reply_markup=get_confirmation_menu())
             return "confirming_order"
 
-    elif state == "removing_order" and text.isdigit():
+    # 🔄 Step 3: Removing an order
+    if state == "removing_order" and text.isdigit():
+        orders = await get_orders(user_id)
         index = int(text) - 1
-        if 0 <= index < len(orders_store.get(user_id, [])):
-            removed = orders_store[user_id].pop(index)
-            save_orders(orders_store)
-            await message.reply(f"✅ Removed order: {removed}", reply_markup=get_main_menu())
+        if 0 <= index < len(orders):
+            await remove_order(user_id, orders[index].id)
+            await message.reply("✅ Order removed.", reply_markup=get_main_menu())
         else:
             await message.reply("❌ Invalid order number.", reply_markup=get_main_menu())
         return None
 
-    elif text == "Add Order":
-        await message.reply(TEXTS["add_order_format"], reply_markup=get_return_menu())
+    # ➕ User clicked "Add Order"
+    if text == "Add Order":
+        await message.reply(
+            TEXTS["add_order_format"],
+            reply_markup=get_return_menu()
+        )
         return "adding_order"
 
-    elif text == "Remove Order":
-        user_orders = orders_store.get(user_id, [])
-        if not user_orders:
+    # 🗑️ User clicked "Remove Order"
+    if text == "Remove Order":
+        orders = await get_orders(user_id)
+        if not orders:
             await message.reply(TEXTS["orders_empty"], reply_markup=get_orders_menu())
             return None
-        await message.reply("Select the number of the order to remove:", reply_markup=get_order_remove_keyboard(len(user_orders)))
+        order_list = "\n".join(
+            [f"{i+1}. {str(o)}" for i, o in enumerate(orders)]
+        )
+        await message.reply(
+            f"📦 Your current orders:\n{order_list}\n\n🗑️ Send the number of the order you want to remove:",
+            reply_markup=get_return_menu()
+        )
         return "removing_order"
 
-    elif text == "Orders" or state is None:
-        user_orders = orders_store.get(user_id, [])
-        if not user_orders:
+    # 📋 User clicked "Orders"
+    if text == "Orders" or state is None:
+        orders = await get_orders(user_id)
+        if not orders:
             await message.reply(TEXTS["orders_empty"], reply_markup=get_orders_menu())
         else:
             order_list = "\n".join(
-                [f"{i+1}. {o}" for i, o in enumerate(user_orders)])
+                [f"{i+1}. {str(o)}" for i, o in enumerate(orders)]
+            )
             await message.reply(TEXTS["orders_list"].format(order_list), reply_markup=get_orders_menu())
-        return None
+        return "orders_menu"
 
     return state
