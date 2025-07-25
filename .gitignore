@@ -2,3 +2,7 @@
 *.session
 *.pyc
 *.session-journal
+*.db-shm
+*.db-wal
+*.db
+*.env
