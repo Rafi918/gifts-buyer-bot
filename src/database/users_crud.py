@@ -16,14 +16,18 @@ async def update_user_stars(user_id: int, stars: int) -> bool:
     return True
 
 
-async def get_user_data(user_id: int = None, name: str = None, username: str = None):
+async def get_user_data(user_id: int):
+    return await User.get_or_none(id=user_id)
 
-    filters = {}
-    if user_id is not None:
-        filters["id"] = user_id
-    if name is not None:
-        filters["name"] = name
-    if username is not None:
-        filters["username"] = username
+async def get_users(page: int = 0, limit: int = 10):
+    offset = page * limit
+    return await User.all().offset(offset).limit(limit)
 
-    return await User.get_or_none(**filters)
+
+async def update_role(user_id: int, new_role: str):
+    user = await User.get_or_none(id=user_id)
+    if user:
+        user.role = new_role
+        await user.save()
+        return True
+    return False
