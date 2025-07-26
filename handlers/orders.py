@@ -1,4 +1,4 @@
-from database.crud import add_order, get_orders, remove_order
+from database.orders_crud import add_order, get_orders, remove_order
 from constants.texts import TEXTS
 from keyboards.reply import (
     get_orders_menu,
