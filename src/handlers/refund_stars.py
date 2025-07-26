@@ -2,7 +2,7 @@ from keyboards.reply import get_return_menu, get_main_menu
 from constants.texts import TEXTS
 
 
-async def handle_refund_stars(client, message, state):
+async def handle_refund_stars(client, message, state, user_data):
     user_id = message.from_user.id
     text = message.text.strip()
 

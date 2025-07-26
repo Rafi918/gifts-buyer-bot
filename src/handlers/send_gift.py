@@ -1,7 +1,7 @@
 from keyboards.reply import get_return_menu, get_main_menu
 
 
-async def handle_send_gift(client, message, state):
+async def handle_send_gift(client, message, state, user_data):
     user_id = message.from_user.id
     text = message.text.strip()
 
