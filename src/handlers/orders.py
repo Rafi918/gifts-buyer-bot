@@ -1,5 +1,6 @@
 from database.orders_crud import add_order, get_orders, remove_order
 from constants.texts import TEXTS
+from constants.states import States
 from keyboards.reply import (
     get_orders_menu,
     get_order_remove_keyboard,
@@ -9,7 +10,7 @@ from keyboards.reply import (
 )
 
 
-async def handle_orders(client, message, state, user_data):
+async def handle_orders(client, message, state, user_data,role):
     user_id = message.from_user.id
     text = message.text.strip()
 
@@ -31,7 +32,7 @@ async def handle_orders(client, message, state, user_data):
     if state == "confirming_order":
         if text == "Yes":
             await add_order(user_id, *user_data[user_id]["order"])
-            await message.reply("✅ Order added.", reply_markup=get_main_menu())
+            await message.reply("✅ Order added.", reply_markup=get_main_menu(role))
             return None
         if text == "No":
             await message.reply("❌ Order cancelled. Enter a new order:", reply_markup=get_return_menu())
@@ -46,9 +47,9 @@ async def handle_orders(client, message, state, user_data):
         index = int(text) - 1
         if 0 <= index < len(orders):
             await remove_order(user_id, orders[index].id)
-            await message.reply("✅ Order removed.", reply_markup=get_main_menu())
+            await message.reply("✅ Order removed.", reply_markup=get_main_menu(role))
         else:
-            await message.reply("❌ Invalid order number.", reply_markup=get_main_menu())
+            await message.reply("❌ Invalid order number.", reply_markup=get_main_menu(role))
         return None
 
     # ➕ User clicked "Add Order"

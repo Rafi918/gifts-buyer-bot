@@ -1,7 +1,7 @@
 from keyboards.reply import get_return_menu, get_main_menu
 
 
-async def handle_send_gift(client, message, state, user_data):
+async def handle_send_gift(client, message, state, user_data, role):
     user_id = message.from_user.id
     text = message.text.strip()
 
@@ -21,16 +21,16 @@ async def handle_send_gift(client, message, state, user_data):
             if response:
                 await message.reply(
                     f"✅ Gift redeemed! ",
-                    reply_markup=get_main_menu()
+                    reply_markup=get_main_menu(role)
                 )
             else:
                 print("send gift", response)
                 await message.reply(
                     f"❌ Failed to redeem gift",
-                    reply_markup=get_main_menu()
+                    reply_markup=get_main_menu(role)
                 )
 
         except Exception as e:
-            await message.reply(f"❌ Error while redeeming gift:\n`{str(e)}`", reply_markup=get_main_menu())
+            await message.reply(f"❌ Error while redeeming gift:\n`{str(e)}`", reply_markup=get_main_menu(role))
 
         return None
