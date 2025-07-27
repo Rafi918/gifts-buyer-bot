@@ -17,7 +17,7 @@ class User(models.Model):
 
 class Order(models.Model):
     id = fields.IntField(pk=True)
-    user_id = fields.BigIntField()
+    user = fields.ForeignKeyField('models.User', related_name='orders')
     min_stars = fields.IntField()
     max_stars = fields.IntField()
     min_supply = fields.IntField()

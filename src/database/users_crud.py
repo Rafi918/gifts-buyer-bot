@@ -1,9 +1,17 @@
-from models import User
+from .models import User
 
 
-async def add_user(user_id: int, name: str, username: str, role: str) -> User:
+async def add_user(user_id: int, role: str = "receiver", name: str = "none", username: str = "none") -> User:
     user = await User.create(id=user_id, name=name, username=username, role=role)
     return user
+
+
+async def remove_user(user_id: int):
+    user = await User.get_or_none(id=user_id)
+    if user:
+        await user.delete()
+        return True
+    return False
 
 
 async def update_user_stars(user_id: int, stars: int) -> bool:
@@ -18,6 +26,11 @@ async def update_user_stars(user_id: int, stars: int) -> bool:
 
 async def get_user_data(user_id: int):
     return await User.get_or_none(id=user_id)
+
+
+async def count_users() -> int:
+    return await User.all().count()
+
 
 async def get_users(page: int = 0, limit: int = 10):
     offset = page * limit
