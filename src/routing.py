@@ -4,6 +4,7 @@ from handlers.orders import handle_orders
 from handlers.send_gift import handle_send_gift
 from handlers.manage_users import handle_users
 from constants.states import States
+from constants.button_action import ButtonAction
 
 STATE_HANDLERS = {
     States.AWAITING_STAR_AMOUNT: handle_charge_stars,
@@ -14,19 +15,21 @@ STATE_HANDLERS = {
     States.REMOVING_ORDER: handle_orders,
     States.AWAITING_GIFT_ID: handle_send_gift,
     States.USERS_MENU: handle_users,
+    States.AWAITING_USER_ID_FOR_ADD: handle_users,
+    States.AWAITING_USER_ID_FOR_REMOVE: handle_users,
     States.AWAITING_USER_ID_FOR_ROLE: handle_users,
     States.AWAITING_NEW_ROLE: handle_users,
 }
 
 BUTTON_HANDLERS = {
-    "Charge Stars": handle_charge_stars,
-    "Refund Stars": handle_refund_stars,
-    "Orders": handle_orders,
-    "Add Order": handle_orders,
-    "Remove Order": handle_orders,
-    "Send Gift": handle_send_gift,
-    "Users": handle_users,
-    "Add User": handle_users,
-    "Remove User": handle_users,
-    "Change Role": handle_users,
+    ButtonAction.CHARGE_STARS: handle_charge_stars,
+    ButtonAction.REFUND_STARS: handle_refund_stars,
+    ButtonAction.ORDERS: handle_orders,
+    ButtonAction.ADD_ORDER: handle_orders,
+    ButtonAction.REMOVE_ORDER: handle_orders,
+    ButtonAction.SEND_GIFT: handle_send_gift,
+    ButtonAction.USERS: handle_users,
+    ButtonAction.ADD_USER: handle_users,
+    ButtonAction.REMOVE_USER: handle_users,
+    ButtonAction.CHANGE_ROLE: handle_users,
 }

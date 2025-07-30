@@ -1,6 +1,7 @@
 
 from enum import Enum
 
+
 class States(str, Enum):
     # 🌟 Charging stars
     AWAITING_STAR_AMOUNT = "awaiting_star_amount"
@@ -19,5 +20,7 @@ class States(str, Enum):
 
     # 👥 Users
     USERS_MENU = "users_menu"
+    AWAITING_USER_ID_FOR_ADD = "awaiting_user_id_for_add"
+    AWAITING_USER_ID_FOR_REMOVE = "awaiting_user_id_for_remove"
     AWAITING_USER_ID_FOR_ROLE = "awaiting_user_id_for_role"
     AWAITING_NEW_ROLE = "awaiting_new_role"

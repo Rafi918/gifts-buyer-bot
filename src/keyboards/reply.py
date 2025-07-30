@@ -1,11 +1,24 @@
 from pyrogram.types import ReplyKeyboardMarkup
 
 
-def get_main_menu():
-    return ReplyKeyboardMarkup(
-        [["Charge Stars", "Refund Stars"], ["Orders", "Send Gift"]],
-        resize_keyboard=True
-    )
+def build_keyboard(buttons: list[list[str]]) -> ReplyKeyboardMarkup:
+    return ReplyKeyboardMarkup(buttons, resize_keyboard=True)
+
+
+def get_main_menu(role: str) -> ReplyKeyboardMarkup:
+    if role == "receiver":
+        return None
+    elif role == "admin":
+        return build_keyboard([
+            ["Charge Stars", "Refund Stars"],
+            ["Orders", "Send Gift"],
+            ["Users"]
+        ])
+    else:
+        return build_keyboard([
+            ["Charge Stars", "Refund Stars"],
+            ["Orders", "Send Gift"]
+        ])
 
 
 def get_return_menu():
@@ -34,3 +47,17 @@ def get_order_remove_keyboard(order_count):
         [[str(i + 1) for i in range(order_count)], ["Return"]],
         resize_keyboard=True
     )
+
+
+def get_users_menu():
+    return build_keyboard([
+        ["Add User", "Remove User", "Change Role"],
+        ["Return"]
+    ])
+
+
+def get_role_keyboard():
+    return build_keyboard([
+        ["admin", "buyer", "receiver"],
+        ["Return"]
+    ])

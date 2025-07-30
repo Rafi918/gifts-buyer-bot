@@ -1,5 +1,5 @@
 TEXTS = {
-    "welcome": "Welcome to the Star Bot! 🌟 Choose an option:",
+    "welcome": "Welcome to the Nini Bot! 🌟 Choose an option:",
     "ask_star_amount": "Please enter the number of stars you'd like to charge:",
     "confirm_star_charge": "Do you want to charge {} stars?",
     "refund_request": "Please send your transaction ID for the refund.",
