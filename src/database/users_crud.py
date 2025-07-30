@@ -14,14 +14,25 @@ async def remove_user(user_id: int):
     return False
 
 
-async def update_user_stars(user_id: int, stars: int) -> bool:
+async def add_user_stars(user_id: int, stars_amount: int) -> bool:
     user = await User.get_or_none(id=user_id)
     if not user:
         return False
-
-    user.stars = stars
+    user.stars += stars_amount
     await user.save()
     return True
+
+
+async def remove_user_stars(user_id: int, stars_amount: int) -> bool:
+    user = await User.get_or_none(id=user_id)
+    if not user:
+        return False
+    if user.stars >= stars_amount:
+        user.stars -= stars_amount
+        await user.save()
+        return True
+
+    return False
 
 
 async def get_user_data(user_id: int):
