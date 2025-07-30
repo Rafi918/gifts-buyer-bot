@@ -34,3 +34,19 @@ class Order(models.Model):
                 f"Supply: {self.min_supply}-{self.max_supply}, "
                 f"Count: {self.count}, Receiver: {self.receiver_id}, "
                 f"Done: {self.completed_count}")
+
+
+class Transaction(models.Model):
+    id = fields.IntField(pk=True)
+    user = fields.ForeignKeyField('models.User', related_name='transactions')
+    total_amount = fields.IntField()
+    transaction_id = fields.CharField(max_length=128)
+    refund_status = fields.BooleanField(default=False)
+
+    class Meta:
+        table = "transactions"
+
+    def __str__(self):
+        return ((f"User: {self.user.id}, "
+                 f"Amount: {self.total_amount}, "
+                 f"Transaction ID: {self.transaction_id}"))
