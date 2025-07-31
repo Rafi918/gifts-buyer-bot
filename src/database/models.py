@@ -17,23 +17,31 @@ class User(models.Model):
 
 class Order(models.Model):
     id = fields.IntField(pk=True)
-    user = fields.ForeignKeyField('models.User', related_name='orders')
+    user = fields.ForeignKeyField('models.User', related_name='user_order')
     min_stars = fields.IntField()
     max_stars = fields.IntField()
     min_supply = fields.IntField()
     max_supply = fields.IntField()
     count = fields.IntField()
-    receiver_id = fields.BigIntField()
+    receiver = fields.ForeignKeyField(
+        'models.User', related_name='receiver_order')
     completed_count = fields.IntField(default=0)
 
     class Meta:
         table = "orders"
 
     def __str__(self):
-        return (f"Stars: {self.min_stars}-{self.max_stars}, "
-                f"Supply: {self.min_supply}-{self.max_supply}, "
-                f"Count: {self.count}, Receiver: {self.receiver_id}, "
-                f"Done: {self.completed_count}")
+        receiver_str = (
+            f"<a href='https://t.me/{self.receiver.username}'>{self.receiver.name}</a>"
+            if self.receiver.username and self.receiver.username != "none"
+            else self.receiver.name
+        )
+        return (
+            f" <b>Stars</b>: {self.min_stars}-{self.max_stars}🌟\n"
+            f"\t    <b>Supply</b>: {self.min_supply}-{self.max_supply}\n"
+            f"\t    <b>Receiver</b>: {receiver_str}, <b>ID</b>: `{self.receiver.id}`\n"
+            f"\t    <b>Remained</b>: {self.count - self.completed_count}, <b>Completed</b>: {self.completed_count}\n"
+        )
 
 
 class Transaction(models.Model):

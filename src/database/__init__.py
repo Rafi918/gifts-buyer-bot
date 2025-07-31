@@ -7,4 +7,3 @@ async def init_db():
         modules={'models': ['database.models']}
     )
     await Tortoise.generate_schemas()
-    print("✅ Registered models:", Tortoise.apps)

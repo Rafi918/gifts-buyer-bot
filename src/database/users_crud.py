@@ -1,7 +1,9 @@
 from .models import User
+from tortoise.expressions import F
+from constants.roles import Roles
 
 
-async def add_user(user_id: int, role: str = "receiver", name: str = "none", username: str = "none") -> User:
+async def add_user(user_id: int, role: str = Roles.RECEIVER.value, name: str = "none", username: str = "none") -> User:
     user = await User.create(id=user_id, name=name, username=username, role=role)
     return user
 
@@ -15,24 +17,20 @@ async def remove_user(user_id: int):
 
 
 async def add_user_stars(user_id: int, stars_amount: int) -> bool:
+    updated_count = await User.filter(id=user_id).update(stars=F("stars") + stars_amount)
+    return updated_count > 0
+
+
+async def deduct_user_stars(user_id: int, stars_amount: int) -> bool:
     user = await User.get_or_none(id=user_id)
     if not user:
         return False
-    user.stars += stars_amount
-    await user.save()
+
+    if user.stars < stars_amount:
+        return False
+
+    await User.filter(id=user_id).update(stars=F("stars") - stars_amount)
     return True
-
-
-async def remove_user_stars(user_id: int, stars_amount: int) -> bool:
-    user = await User.get_or_none(id=user_id)
-    if not user:
-        return False
-    if user.stars >= stars_amount:
-        user.stars -= stars_amount
-        await user.save()
-        return True
-
-    return False
 
 
 async def get_user_data(user_id: int):
@@ -52,6 +50,16 @@ async def update_role(user_id: int, new_role: str):
     user = await User.get_or_none(id=user_id)
     if user:
         user.role = new_role
+        await user.save()
+        return True
+    return False
+
+
+async def update_data(user_id: int, name: str, username: str):
+    user = await User.get_or_none(id=user_id)
+    if user:
+        user.name = name
+        user.username = username
         await user.save()
         return True
     return False
