@@ -3,15 +3,17 @@ from pyrogram.types import Message, PreCheckoutQuery
 from config import config
 from state import user_state, user_data
 from keyboards.reply import get_main_menu
-from database.users_crud import get_user_data, add_user
+from database.users_crud import get_user_data, add_user, update_data
 from database.transaction_crud import add_transaction
+from database.orders_crud import get_orders
 from handlers.main_menu import handle_start
 from routing import BUTTON_HANDLERS, STATE_HANDLERS
 from constants.button_action import ButtonAction
 
 from pyrogram.types import CallbackQuery
 from handlers.manage_users import update_users_list_page
-
+from constants.texts import TEXTS
+from constants.roles import Roles
 
 app = Client("star_bot", api_id=config.API_ID,
              api_hash=config.API_HASH, bot_token=config.BOT_TOKEN)
@@ -38,29 +40,50 @@ def init_handlers(app: Client):
     @app.on_message(filters.command("start"))
     async def start_handler(client, message):
         user_id = message.from_user.id
-        user_state[user_id] = None
-        user_data[user_id] = {}
+        if (user_id not in user_state) or user_id not in user_data:
+            user_state[user_id] = None
+            user_data[user_id] = {}
         user = await get_user_data(user_id)
-        role = "receiver"
+        role = Roles.RECEIVER
+
         if user:
-            role = user.role
+            role = Roles(user.role)
+            if (user.name == "Unknown"):
+                await update_data(user_id=user_id, name=message.from_user.first_name or "none", username=message.from_user.username or "none")
         if not user and str(user_id) == str(config.ADMIN_ID):
             await add_user(
                 user_id=user_id,
                 name=message.from_user.first_name or "none",
                 username=message.from_user.username or "none",
-                role="admin"
+                role=Roles.Admin.value
             )
-            role = "admin"
+            role = Roles.Admin
 
         await handle_start(client, message, role)
+
+    @app.on_message(filters.command("me"))
+    async def profile_handler(client, message):
+        user_id = message.from_user.id
+        user = await get_user_data(user_id)
+        if not user or user.role == Roles.RECEIVER.value:
+            await message.reply(TEXTS["profile_user"].format(user_id))
+            return
+        orders = await get_orders(user_id)
+
+        order_list = "\n".join(
+            [f"{i+1}. {str(o)}" for i, o in enumerate(orders)])
+
+        orders_text = TEXTS["orders_list"].format(
+            order_list) if orders else TEXTS["orders_empty"]
+
+        await message.reply(TEXTS["profile_full"].format(user.id, user.stars, orders_text))
 
     @app.on_callback_query()
     async def callback_handler(client, callback_query: CallbackQuery):
         user_id = callback_query.from_user.id
-
         user = await get_user_data(user_id)
-        if not user and user.role != "admin":
+
+        if not user and user.role != Roles.ADMIN.value:
             return
         data = callback_query.data
 
@@ -74,28 +97,32 @@ def init_handlers(app: Client):
             page = int(data.split("_")[1]) - 1
             await update_users_list_page(client, callback_query.message, page)
         else:
-            await callback_query.answer("Unknown action.", show_alert=True)
+            await callback_query.answer(TEXTS["unknown_action"], show_alert=True)
 
     @app.on_message(filters.text)
     async def main_handler(client, message):
         user_id = message.from_user.id
         user = await get_user_data(user_id)
 
-        role = "receiver"
+        if (user_id not in user_state) or (user_id not in user_data):
+            user_state[user_id] = None
+            user_data[user_id] = {}
+
+        role = Roles.RECEIVER
         if user:
-            role = user.role
+            role = Roles(user.role)
 
         text = message.text.strip()
         state = user_state.get(user_id)
 
-        if (role == "receiver"):
+        if (role == Roles.RECEIVER):
             return
 
         try:
             action = ButtonAction(text)
             if action == ButtonAction.RETURN:
                 user_state[user_id] = None
-                await message.reply("🔙 Back to main menu.", reply_markup=get_main_menu(role))
+                await message.reply(TEXTS["back_to_main"], reply_markup=get_main_menu(role))
                 return
 
             handler = BUTTON_HANDLERS[action]
@@ -109,4 +136,4 @@ def init_handlers(app: Client):
             user_state[user_id] = await handler(client, message, state, user_data, role)
             return
 
-        await message.reply("I didn’t understand that. Please use the menu.", reply_markup=get_main_menu(role))
+        await message.reply(TEXTS["not_understood"], reply_markup=get_main_menu(role))
