@@ -1,14 +1,14 @@
 from keyboards.reply import get_return_menu, get_main_menu
-from database.users_crud import get_user_data, update_user_stars
+from database.users_crud import get_user_data, deduct_user_stars
+from database.transaction_crud import get_transaction, refund_transaction
 from constants.texts import TEXTS
 from constants.states import States
-from pyrogram.raw.functions.payments import RefundStarsCharge
-from pyrogram.raw.types import InputPeerSelf, InputStarsTransaction
+from database.models import Transaction, User
 
 
 async def handle_refund_stars(client, message, state, user_data, role):
     user_id = message.from_user.id
-    text = message.text.strip()
+    transaction_id = message.text.strip()
 
     if state is None:
         await message.reply(TEXTS["refund_request"], reply_markup=get_return_menu())
@@ -16,34 +16,44 @@ async def handle_refund_stars(client, message, state, user_data, role):
 
     elif state == States.AWAITING_REFUND_ID:
         try:
-            tids = [InputStarsTransaction(id=text)]
-            peer = InputPeerSelf()
-            # result = await client.invoke(
-            #     GetStarsTransactionsByID(peer=peer, id=tids)
-            # )
-            # print("found", result)
-            # response = await client.refund_star_payment(
-            #     user_id=user_id,
-            #     telegram_payment_charge_id=text
-            # )
 
-            result = await client.invoke(
-                RefundStarsCharge(user_id=user_id, charge_id=text)
+            transaction: Transaction = await get_transaction(transaction_id)
+            if (transaction.refund_status):
+                await message.reply(
+                    TEXTS["refund_already_processed"].format(transaction_id),
+                    reply_markup=get_main_menu(role)
+                )
+                return None
+
+            user_data: User = await get_user_data(user_id)
+
+            if (not user_data or user_data.stars < transaction.total_amount):
+                await message.reply(
+                    TEXTS["refund_not_enough_stars"],
+                    reply_markup=get_main_menu(role)
+                )
+                return None
+
+            response = await client.refund_star_payment(
+                user_id=user_id,
+                telegram_payment_charge_id=transaction_id
             )
-            print("found", result)
 
-            # if not response:
-            #     print("refund", response)
-            #     await message.reply(f"❌ Refund failed", reply_markup=get_main_menu(role))
-
-            # user = get_user_data(user_id)
-            # updated_stars = user.stars + query.total_amount
-            # client.getStarsTransactionsByID
-
-            # await update_user_stars(user_id, updated_stars)
+            if response:
+                await deduct_user_stars(user_id, transaction.total_amount)
+                await refund_transaction(transaction_id)
+                await message.reply(
+                    TEXTS["refund_success"],
+                    reply_markup=get_main_menu(role)
+                )
+            else:
+                await message.reply(
+                    TEXTS["refund_failed"],
+                    reply_markup=get_main_menu(role)
+                )
 
         except Exception as e:
-            await message.reply(f"❌ Error while refunding: {str(e)}", reply_markup=get_main_menu(role))
+            await message.reply(TEXTS["refund_error"].format(str(e)), reply_markup=get_main_menu(role))
 
         return None
 

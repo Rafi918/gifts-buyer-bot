@@ -8,15 +8,13 @@ async def handle_charge_stars(client, message, state, user_data, role):
     user_id = message.from_user.id
     text = message.text
 
-    # Step 1: Ask for star amount
     if state is None:
         await message.reply(TEXTS["ask_star_amount"], reply_markup=get_return_menu())
         return States.AWAITING_STAR_AMOUNT
 
-    # Step 2: Process star amount and send invoice immediately
     elif state == States.AWAITING_STAR_AMOUNT:
         if not text.isdigit():
-            await message.reply("❌ Please enter a valid number.")
+            await message.reply(TEXTS["invalid_star_amount"])
             return States.AWAITING_STAR_AMOUNT
 
         stars = int(text)
@@ -33,12 +31,12 @@ async def handle_charge_stars(client, message, state, user_data, role):
                 start_parameter="star_charge"
             )
             await message.reply(
-                f"✅ Invoice sent to charge {stars} stars.",
+                TEXTS["invoice_sent"].format(stars),
                 reply_markup=get_main_menu(role)
             )
         except Exception as e:
             await message.reply(
-                f"❌ Failed to send invoice:\n`{str(e)}`",
+                TEXTS["invoice_failed"].format(str(e)),
                 reply_markup=get_main_menu(role)
             )
 
