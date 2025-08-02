@@ -11,6 +11,7 @@ class States(str, Enum):
     AWAITING_REFUND_ID = "awaiting_refund_id"
 
     # 📦 Orders
+    ORDERS_MENU = "orders_menu"
     ADDING_ORDER = "adding_order"
     CONFIRMING_ORDER = "confirming_order"
     REMOVING_ORDER = "removing_order"
