@@ -1,0 +1,11 @@
+
+services:
+  gifts-buyer-bot:
+    build: .
+    container_name: gifts-buyer-bot
+    restart: always
+    env_file: 
+      - .env
+    volumes:
+      - ./data:/app/data  
+    command: python src/main.py
