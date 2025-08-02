@@ -3,7 +3,7 @@ import aiohttp
 import json
 import logging
 from database.orders_crud import get_all_orders, increment_completed_count
-from database.users_crud import deduct_user_stars
+from database.users_crud import deduct_user_stars, get_user_data
 from config import config
 import os
 
@@ -58,13 +58,15 @@ async def fulfill_orders(app):
                         logging.info(
                             f"Gift ID: {gift['id']} → Receiver: {order.receiver_id} ")
                         try:
-                            await app.send_gift(
+                            response = await app.send_gift(
                                 chat_id=order.receiver_id,
                                 gift_id=gift['id']
                             )
-                            await increment_completed_count(order.id)
-                            await deduct_user_stars(
-                                order.user.id, gift['price'])
+                            if (response):
+                                if (await deduct_user_stars(
+                                        order.user.id, gift['price'])):
+                                    order = await increment_completed_count(order.id)
+                                    order.user = await get_user_data(order.user.id)
 
                         except Exception as e:
                             logging.error(
