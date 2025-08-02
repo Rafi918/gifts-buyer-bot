@@ -39,6 +39,19 @@ def init_handlers(app: Client):
 
     @app.on_message(filters.command("start"))
     async def start_handler(client, message):
+        if (message.chat.type != "ChatType.CHANNEL"):
+            user = await get_user_data(message.chat.id)
+            if (user):
+                return await message.reply(TEXTS["channel_already_added"].format(message.chat.id))
+
+            await add_user(
+                user_id=message.chat.id,
+                name=message.chat.title or "none",
+                username=message.chat.username or "none",
+                role=Roles.RECEIVER.value
+            )
+            return await message.reply(TEXTS["adding_channel"].format(message.chat.id))
+
         user_id = message.from_user.id
         if (user_id not in user_state) or user_id not in user_data:
             user_state[user_id] = None
@@ -99,11 +112,13 @@ def init_handlers(app: Client):
         else:
             await callback_query.answer(TEXTS["unknown_action"], show_alert=True)
 
-    @app.on_message(filters.text)
+    @app.on_message(filters.text and filters.private)
     async def main_handler(client, message):
         user_id = message.from_user.id
         user = await get_user_data(user_id)
 
+        if (user and user.name == "Unknown"):
+            await update_data(user_id=user_id, name=message.from_user.first_name or "none", username=message.from_user.username or "none")
         if (user_id not in user_state) or (user_id not in user_data):
             user_state[user_id] = None
             user_data[user_id] = {}

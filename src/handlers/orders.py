@@ -29,7 +29,13 @@ async def handle_orders(client, message, state, user_data, role):
             user_data[user_id] = {
                 "order": (int(min_stars), int(max_stars), int(min_supply), int(max_supply), int(count), int(receiver_id))
             }
-            await message.reply(TEXTS["add_order_confirm"].format(min_stars, max_stars, min_supply, max_supply, count, receiver_id), reply_markup=get_confirmation_menu())
+
+            receiver_str = (
+                f"<a href='https://t.me/{receiver.username}'>{receiver.name}</a>"
+                if receiver.username and receiver.username != "none"
+                else receiver.name
+            )
+            await message.reply(TEXTS["add_order_confirm"].format(min_stars, max_stars, min_supply, max_supply, receiver_str, receiver_id, count), reply_markup=get_confirmation_menu())
             return States.CONFIRMING_ORDER
 
         await message.reply(TEXTS["invalid_format"], reply_markup=get_return_menu())

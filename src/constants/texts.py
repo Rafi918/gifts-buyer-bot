@@ -23,7 +23,7 @@ TEXTS = {
     "orders_empty": "📭 You have no orders yet.",
     "orders_list": "📦 Your orders:\n \n{}",
     "add_order_format": "Please send your order like this:\n `(min stars) (max stars) (min supply) (max supply) (count) (receiver id)` \n \n ex: 2000 5000 0 500000 3 7056348541 ",
-    "add_order_confirm": "Do you want to add this order?\n\n **Price**: {}-{}🌟 \n **Supply**: {}-{} \n **Count**: {} \n **Receiver ID**: {} ",
+    "add_order_confirm": "Do you want to add this order?\n\n<b>Stars</b>: {}-{}🌟\n<b>Supply</b>: {}-{}\n<b>Receiver</b>: {}, <b>ID</b>: `{}`\n<b>Count</b>: {}",
     "invalid_format": "❌ Invalid format. Please try again.",
     "user_not_found": "❌ User with ID {} not found.",
     "order_added": "✅ Order added.",
@@ -40,6 +40,8 @@ TEXTS = {
     "profile_full": "Your Profile:\n\tUser ID: `{}`\n\tStars: {}🌟\n\n{}",
     "unknown_action": "Unknown action.",
     "not_understood": "I didn’t understand that. Please use the menu.",
+    "adding_channel": "You have added the channel with ID `{}`. Now you send gift to this channel.",
+    "channel_already_added": "This channel is already added with ID `{}`.",
 
     # User management texts
     "no_users_found": "⚠ No users found.",
@@ -55,4 +57,7 @@ TEXTS = {
     "choose_new_role": "Choose the new role:",
     "user_role_updated": "✅ User {} is now a **{}**.",
     "invalid_role": "❌ Invalid role. Choose: admin / buyer / receiver"
+
+
+
 }
