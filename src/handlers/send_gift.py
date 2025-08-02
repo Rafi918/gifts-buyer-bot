@@ -1,36 +1,34 @@
 from keyboards.reply import get_return_menu, get_main_menu
-
+from constants.texts import TEXTS
+from constants.states import States
+from database.users_crud import get_user_data,deduct_user_stars
 
 async def handle_send_gift(client, message, state, user_data, role):
     user_id = message.from_user.id
-    text = message.text.strip()
+    user = await get_user_data(user_id)
 
+    if not user or user.stars < 15:
+        await message.reply(TEXTS["not_enough_stars"], reply_markup=get_main_menu(role))
+        return None
+    
     if state is None:
-        await message.reply("🎁 Please enter your Gift ID to redeem it:", reply_markup=get_return_menu())
-        return "awaiting_gift_id"
 
-    elif state == "awaiting_gift_id":
-        gift_id = int(text)
+        await message.reply(TEXTS["sending_gift_prompt_testing"], reply_markup=get_return_menu())
+        return States.AWAITING_USER_ID_SENDING_GIFT
 
+    elif state == States.AWAITING_USER_ID_SENDING_GIFT:
         try:
-            response = await client.send_gift(
-                chat_id=user_id,
-                gift_id=gift_id
-            )
+            
+            receiver_id = message.text.strip()
 
-            if response:
-                await message.reply(
-                    f"✅ Gift redeemed! ",
-                    reply_markup=get_main_menu(role)
-                )
-            else:
-                print("send gift", response)
-                await message.reply(
-                    f"❌ Failed to redeem gift",
-                    reply_markup=get_main_menu(role)
-                )
+            await client.send_gift(
+                chat_id=receiver_id,
+                gift_id=5170233102089322756
+            )
+            await deduct_user_stars(user_id, 15)  
+            await message.reply(TEXTS["gift_sent"], reply_markup=get_main_menu(role))
 
         except Exception as e:
-            await message.reply(f"❌ Error while redeeming gift:\n`{str(e)}`", reply_markup=get_main_menu(role))
+            await message.reply(TEXTS["gift_error"].format(str(e)), reply_markup=get_main_menu(role))
 
         return None

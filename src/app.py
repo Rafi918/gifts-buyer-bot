@@ -11,6 +11,7 @@ from routing import BUTTON_HANDLERS, STATE_HANDLERS
 from constants.button_action import ButtonAction
 
 from pyrogram.types import CallbackQuery
+from pyrogram.enums import ChatType
 from handlers.manage_users import update_users_list_page
 from constants.texts import TEXTS
 from constants.roles import Roles
@@ -39,7 +40,8 @@ def init_handlers(app: Client):
 
     @app.on_message(filters.command("start"))
     async def start_handler(client, message):
-        if (message.chat.type != "ChatType.CHANNEL"):
+
+        if (message.chat.type == ChatType.CHANNEL):
             user = await get_user_data(message.chat.id)
             if (user):
                 return await message.reply(TEXTS["channel_already_added"].format(message.chat.id))

@@ -17,7 +17,7 @@ class States(str, Enum):
     REMOVING_ORDER = "removing_order"
 
     # 🎁 Gifts
-    AWAITING_GIFT_ID = "awaiting_gift_id"
+    AWAITING_USER_ID_SENDING_GIFT = "awaiting_user_sending_gift"
 
     # 👥 Users
     USERS_MENU = "users_menu"

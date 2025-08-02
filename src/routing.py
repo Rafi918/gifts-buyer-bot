@@ -13,7 +13,7 @@ STATE_HANDLERS = {
     States.ADDING_ORDER: handle_orders,
     States.CONFIRMING_ORDER: handle_orders,
     States.REMOVING_ORDER: handle_orders,
-    States.AWAITING_GIFT_ID: handle_send_gift,
+    States.AWAITING_USER_ID_SENDING_GIFT: handle_send_gift,
     States.USERS_MENU: handle_users,
     States.AWAITING_USER_ID_FOR_ADD: handle_users,
     States.AWAITING_USER_ID_FOR_REMOVE: handle_users,

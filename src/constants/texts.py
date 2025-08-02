@@ -1,7 +1,7 @@
 TEXTS = {
     # welcome texts
-    "welcome": "Welcome to the Nini Bot! 🌟 Choose an option:",
-    "welcome_receiver": "Welcome to the Nini Bot! 🌟 You are registered as a receiver.",
+    "welcome": "Welcome to the Nini Bot! ⭐️ Choose an option:",
+    "welcome_receiver": "Welcome to the Nini Bot! ⭐️ You are registered as a receiver.",
 
 
     # charging stars texts
@@ -23,7 +23,7 @@ TEXTS = {
     "orders_empty": "📭 You have no orders yet.",
     "orders_list": "📦 Your orders:\n \n{}",
     "add_order_format": "Please send your order like this:\n `(min stars) (max stars) (min supply) (max supply) (count) (receiver id)` \n \n ex: 2000 5000 0 500000 3 7056348541 ",
-    "add_order_confirm": "Do you want to add this order?\n\n<b>Stars</b>: {}-{}🌟\n<b>Supply</b>: {}-{}\n<b>Receiver</b>: {}, <b>ID</b>: `{}`\n<b>Count</b>: {}",
+    "add_order_confirm": "Do you want to add this order?\n\n<b>Stars</b>: {}-{}⭐️\n<b>Supply</b>: {}-{}\n<b>Receiver</b>: {}, <b>ID</b>: `{}`\n<b>Count</b>: {}",
     "invalid_format": "❌ Invalid format. Please try again.",
     "user_not_found": "❌ User with ID {} not found.",
     "order_added": "✅ Order added.",
@@ -37,7 +37,7 @@ TEXTS = {
     # app.py texts
     "back_to_main": "🔙 Back to main menu.",
     "profile_user": "Your User ID: `{}`",
-    "profile_full": "Your Profile:\n\tUser ID: `{}`\n\tStars: {}🌟\n\n{}",
+    "profile_full": "Your Profile:\n\tUser ID: `{}`\n\tStars: {}⭐️\n\n{}",
     "unknown_action": "Unknown action.",
     "not_understood": "I didn’t understand that. Please use the menu.",
     "adding_channel": "You have added the channel with ID `{}`. Now you send gift to this channel.",
@@ -56,8 +56,11 @@ TEXTS = {
     "ask_user_id_role": "Please send the **Telegram user_id** of the user whose role you want to change:",
     "choose_new_role": "Choose the new role:",
     "user_role_updated": "✅ User {} is now a **{}**.",
-    "invalid_role": "❌ Invalid role. Choose: admin / buyer / receiver"
+    "invalid_role": "❌ Invalid role. Choose: admin / buyer / receiver",
 
-
-
+    # Sending gifts texts
+    "sending_gift_prompt_testing": "🎁 Please enter the **Receiver ID** to send a 🧸 gift. _(Testing only)_",
+    "not_enough_stars": "❌ You need at least 15⭐️ to send a 🧸 gift. _(Testing only)_",
+    "gift_sent": "✅ Gift sent successfully!",
+    "gift_error": "❌ Error while sending gift:\n`{}`"
 }

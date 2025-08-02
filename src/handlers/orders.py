@@ -17,7 +17,7 @@ async def handle_orders(client, message, state, user_data, role):
 
     if state == States.ADDING_ORDER:
         parts = text.split()
-        if len(parts) == 6 and all(p.isdigit() for p in parts[1:]):
+        if len(parts) == 6 and all(p.isdigit() for p in parts[0:-1]):
             min_stars, max_stars, min_supply, max_supply, count, receiver_id = parts
 
             receiver = await get_user_data(receiver_id)
@@ -27,7 +27,7 @@ async def handle_orders(client, message, state, user_data, role):
                 return States.ADDING_ORDER
 
             user_data[user_id] = {
-                "order": (int(min_stars), int(max_stars), int(min_supply), int(max_supply), int(count), int(receiver_id))
+                "order": (int(min_stars), int(max_stars), int(min_supply), int(max_supply), int(count), (receiver_id))
             }
 
             receiver_str = (
