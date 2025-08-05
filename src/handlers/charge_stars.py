@@ -2,7 +2,7 @@ from keyboards.reply import get_return_menu, get_main_menu
 from constants.texts import TEXTS
 from pyrogram.types import LabeledPrice
 from constants.states import States
-
+import logging
 
 async def handle_charge_stars(client, message, state, user_data, role):
     user_id = message.from_user.id
@@ -35,6 +35,7 @@ async def handle_charge_stars(client, message, state, user_data, role):
                 reply_markup=get_main_menu(role)
             )
         except Exception as e:
+            logging.error(f"Error sending invoice: {e}")
             await message.reply(
                 TEXTS["invoice_failed"].format(str(e)),
                 reply_markup=get_main_menu(role)

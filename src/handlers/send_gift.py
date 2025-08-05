@@ -2,6 +2,7 @@ from keyboards.reply import get_return_menu, get_main_menu
 from constants.texts import TEXTS
 from constants.states import States
 from database.users_crud import get_user_data,deduct_user_stars
+from logger import logger
 
 async def handle_send_gift(client, message, state, user_data, role):
     user_id = message.from_user.id
@@ -29,6 +30,7 @@ async def handle_send_gift(client, message, state, user_data, role):
             await message.reply(TEXTS["gift_sent"], reply_markup=get_main_menu(role))
 
         except Exception as e:
+            logger.error(TEXTS["gift_error"].format(str(e)))
             await message.reply(TEXTS["gift_error"].format(str(e)), reply_markup=get_main_menu(role))
 
         return None

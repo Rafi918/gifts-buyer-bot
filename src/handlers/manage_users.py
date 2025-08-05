@@ -5,7 +5,7 @@ from constants.states import States
 from constants.button_action import ButtonAction
 from constants.roles import Roles
 from constants.texts import TEXTS
-
+from logger import logger
 
 def get_users_inline_keyboard(page: int, total_pages: int):
     nav_buttons = []
@@ -45,7 +45,7 @@ async def update_users_list_page(client, message, page: int):
             reply_markup=get_users_inline_keyboard(page, total_pages)
         )
     except Exception as e:
-        print("Error editing message:", e)
+        logger.error(f"Error editing message: {e}")
 
 
 async def handle_users(client, message, state, user_data, role):
@@ -108,7 +108,6 @@ async def handle_users(client, message, state, user_data, role):
         await message.reply(TEXTS["user_added"].format(text), reply_markup=get_users_menu())
         return States.USERS_MENU
 
-    # 🗑 REMOVE USER FLOW
     if text == ButtonAction.REMOVE_USER.value:
         await message.reply(TEXTS["ask_user_id_remove"],
                             reply_markup=get_return_menu())

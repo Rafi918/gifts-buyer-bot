@@ -4,7 +4,7 @@ from database.transaction_crud import get_transaction, refund_transaction
 from constants.texts import TEXTS
 from constants.states import States
 from database.models import Transaction, User
-
+from logger import logger   
 
 async def handle_refund_stars(client, message, state, user_data, role):
     user_id = message.from_user.id
@@ -53,6 +53,7 @@ async def handle_refund_stars(client, message, state, user_data, role):
                 )
 
         except Exception as e:
+            logger.error(TEXTS["refund_error"].format(str(e)))
             await message.reply(TEXTS["refund_error"].format(str(e)), reply_markup=get_main_menu(role))
 
         return None
