@@ -5,25 +5,28 @@ from database.orders_crud import get_all_orders, increment_completed_count
 from database.users_crud import deduct_user_stars, get_user_data
 from config import config
 from logger import worker_logger
+from helpers.fetch_gifts import fetch_gifts
 
 
-async def fetch_gifts(session):
-    async with session.get("https://buygifts.vercel.app/") as resp:
-        resp.raise_for_status()
-        text = await resp.text()
-        return json.loads(text)["available gifts"]
+async def fulfill_orders(app, user_bot):
 
-
-async def fulfill_orders(app):
-
+    user_stars_in_account = await user_bot.get_stars_balance()
     orders = await get_all_orders()
 
     worker_logger.info(f"Found {len(orders)} orders to fulfill...")
 
     async with aiohttp.ClientSession() as session:
         gifts = await fetch_gifts(session)
-        gifts.sort(key=lambda g: g["price"], reverse=True)
 
+        gifts = [gift for gift in gifts if gift["is_limited"]
+                 and gift["available_amount"] > 0]
+
+        if not gifts:
+            worker_logger.error(
+                "No gifts fetched, skipping order fulfillment.")
+            return
+
+        gifts.sort(key=lambda g: g["price"], reverse=True)
         for order in orders:
 
             if order.completed_count >= order.count:
@@ -33,10 +36,8 @@ async def fulfill_orders(app):
                 f"Processing Order ID: {order.id}  for user {order.user.id}")
 
             for gift in gifts:
-                if not gift["is_limited"]:
-                    continue
 
-                if gift["price"] > order.user.stars or gift["available_amount"] == 0:
+                if gift["price"] > order.user.stars:
                     continue
 
                 if (order.min_stars <= gift["price"] <= order.max_stars and
@@ -50,15 +51,15 @@ async def fulfill_orders(app):
                         worker_logger.info(
                             f"Gift ID: {gift['id']} → Receiver: {order.receiver_id} ")
                         try:
-                            response = await app.send_gift(
+
+                            await app.send_gift(
                                 chat_id=order.receiver_id,
                                 gift_id=gift['id']
                             )
-                            if (response):
-                                if (await deduct_user_stars(
-                                        order.user.id, gift['price'])):
-                                    order = await increment_completed_count(order.id)
-                                    order.user = await get_user_data(order.user.id)
+                            if (await deduct_user_stars(
+                                    order.user.id, gift['price'])):
+                                order = await increment_completed_count(order.id)
+                                order.user = await get_user_data(order.user.id)
 
                         except Exception as e:
                             worker_logger.error(
@@ -69,6 +70,8 @@ async def fulfill_orders(app):
             else:
                 worker_logger.info(
                     f"No suitable gift for order ID:{order.id}")
+
+
 
 
 async def gift_worker_loop(app):
