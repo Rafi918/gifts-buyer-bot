@@ -1,0 +1,4 @@
+
+
+class InsufficientStarsError(Exception):
+    pass
