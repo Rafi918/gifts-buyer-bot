@@ -5,3 +5,5 @@ python-dotenv
 tortoise-orm
 aiohttp
 aiodns
+pytest
+pytest-asyncio
