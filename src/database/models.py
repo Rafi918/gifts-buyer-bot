@@ -2,7 +2,7 @@ from tortoise import fields, models
 
 
 class User(models.Model):
-    id = fields.BigIntField(pk=True)
+    id = fields.BigIntField(primary_key=True)
     name = fields.CharField(max_length=100)
     username = fields.CharField(max_length=50, null=True)
     role = fields.CharField(max_length=30)
@@ -10,13 +10,16 @@ class User(models.Model):
 
     class Meta:
         table = "users"
+        constraints = [
+            "CONSTRAINT stars_nonnegative CHECK (stars >= 0)"
+        ]
 
     def __str__(self):
         return self.name
 
 
 class Order(models.Model):
-    id = fields.IntField(pk=True)
+    id = fields.IntField(primary_key=True)
     user = fields.ForeignKeyField('models.User', related_name='user_order')
     min_stars = fields.IntField()
     max_stars = fields.IntField()
@@ -37,7 +40,7 @@ class Order(models.Model):
             else self.receiver.name
         )
         return (
-            f" <b>Stars</b>: {self.min_stars}-{self.max_stars}🌟\n"
+            f" <b>Stars</b>: {self.min_stars}-{self.max_stars}⭐️\n"
             f"\t    <b>Supply</b>: {self.min_supply}-{self.max_supply}\n"
             f"\t    <b>Receiver</b>: {receiver_str}, <b>ID</b>: `{self.receiver.id}`\n"
             f"\t    <b>Remained</b>: {self.count - self.completed_count}, <b>Completed</b>: {self.completed_count}\n"
@@ -45,10 +48,10 @@ class Order(models.Model):
 
 
 class Transaction(models.Model):
-    id = fields.IntField(pk=True)
+    id = fields.IntField(primary_key=True)
     user = fields.ForeignKeyField('models.User', related_name='transactions')
     total_amount = fields.IntField()
-    transaction_id = fields.CharField(max_length=128)
+    transaction_id = fields.CharField(max_length=128, unique=True)
     refund_status = fields.BooleanField(default=False)
 
     class Meta:

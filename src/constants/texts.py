@@ -1,7 +1,7 @@
 TEXTS = {
     # welcome texts
-    "welcome": "Welcome to the Nini Bot! ⭐️ Choose an option:",
-    "welcome_receiver": "Welcome to the Nini Bot! ⭐️ You are registered as a receiver.",
+    "welcome": "Hi, please join <a href='https://t.me/AutoBuyerGiftsViki'>our channel</a>, Choose an option:",
+    "welcome_receiver": "Hi, please join <a href='https://t.me/AutoBuyerGiftsViki'>our channel</a>, You are registered as a receiver.",
 
 
     # charging stars texts

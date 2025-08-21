@@ -16,8 +16,12 @@ from handlers.manage_users import update_users_list_page
 from constants.texts import TEXTS
 from constants.roles import Roles
 
-app = Client("star_bot", api_id=config.API_ID,
-             api_hash=config.API_HASH, bot_token=config.BOT_TOKEN)
+import os
+
+
+os.makedirs("sessions/bot", exist_ok=True)
+app = Client("main_bot", api_id=config.API_ID,
+             api_hash=config.API_HASH, bot_token=config.BOT_TOKEN, workdir="sessions/bot")
 
 
 def init_handlers(app: Client):
@@ -70,9 +74,9 @@ def init_handlers(app: Client):
                 user_id=user_id,
                 name=message.from_user.first_name or "none",
                 username=message.from_user.username or "none",
-                role=Roles.Admin.value
+                role=Roles.ADMIN.value
             )
-            role = Roles.Admin
+            role = Roles.ADMIN
 
         await handle_start(client, message, role)
 

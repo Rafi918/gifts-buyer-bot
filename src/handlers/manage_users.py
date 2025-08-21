@@ -7,6 +7,7 @@ from constants.roles import Roles
 from constants.texts import TEXTS
 from logger import logger
 
+
 def get_users_inline_keyboard(page: int, total_pages: int):
     nav_buttons = []
     if page > 0:
@@ -35,7 +36,7 @@ async def update_users_list_page(client, message, page: int):
         [
                 f"{i + 1 + (page * limit)}. "
             + (f"<a href='https://t.me/{u.username}'>{u.name}</a> " if u.username and u.username != "none" else u.name)
-            + f"({u.role}) – ID: `{u.id}`, Stars: {u.stars}🌟"
+            + f"({u.role}) – ID: `{u.id}`, Stars: {u.stars}⭐️"
             for i, u in enumerate(users)
         ]
     )
@@ -71,7 +72,7 @@ async def handle_users(client, message, state, user_data, role):
             [
                     f"{i + 1 + (page * limit)}. "
                     + (f"<a href='https://t.me/{u.username}'>{u.name}</a> " if u.username and u.username != "none" else u.name)
-                    + f"({u.role}) – ID: `{u.id}`, Stars: {u.stars}🌟"
+                    + f"({u.role}) – ID: `{u.id}`, Stars: {u.stars}⭐️"
                     for i, u in enumerate(users)
             ]
         )
