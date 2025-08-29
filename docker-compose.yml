@@ -1,5 +1,15 @@
 
 services:
+  login_once:
+    build: .
+    stdin_open: true
+    tty: true         
+    env_file: 
+      - .env
+    container_name: gifts-buyer-login 
+    volumes:
+      - ./sessions:/app/sessions
+    command: python src/login_once.py
   gifts-buyer-bot:
     build: .
     container_name: gifts-buyer-bot
@@ -8,4 +18,7 @@ services:
       - .env
     volumes:
       - ./data:/app/data  
+      - ./logs:/app/logs
+      - ./sessions:/app/sessions
+
     command: python src/main.py

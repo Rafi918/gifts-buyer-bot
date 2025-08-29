@@ -1,7 +1,7 @@
 .venv
 *.session
-*.pyc
 *.session-journal
+*.pyc
 *.db-shm
 *.db-wal
 *.db
