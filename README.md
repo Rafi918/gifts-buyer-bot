@@ -1,19 +1,29 @@
-# Gifts Buyer Bot For Telegram
+# Telegram Gifts Buyer Bot, UserBot
 
-This bot allows users to automatically purchase future gifts based on price and supply. It supports both individual users and public channels, retrieving gift data from an upstream Telegram user bot via API.
+[![Tests](https://github.com/bavanDA/gifts-buyer-bot/actions/workflows/tests.yml/badge.svg)](https://github.com/bavanDA/gifts-buyer-bot/actions/workflows/tests.yml)
 
-Features:
 
-- ⭐ Charge and refund stars to users.
-- 🧾 Create and store orders based on gift price and supply.
-- 🔄 Retrieving gift data from upstream Telegram user bot via API.
-- ⚙️ Background worker processes and fulfills orders.
-- 🎁 Send gifts to individual users or public channels.
-- 👥 Role system:
-  - receiver: can only receive gifts.
-  - buyer: can create orders and charge stars.
-  - admin: same as buyer, plus can add/remove users and change roles.
-- 📊 View star balances for all users.
+This bot allows users to **automatically purchase Telegram gifts** based on **price** and **supply**.  
+It supports sending gifts to both **individual users** and **channels**, and can optionally connect to a **user account** to purchase **premium gifts**.
+
+## Features:
+
+- ⭐ **Charge and refund stars**.
+- 🧾 **Create and store orders** based on **gift price** and **supply**.
+- 🔄 **Retrieve gifts data** from upstream Telegram user bot via API.
+- ⚙️ **Process and fulfill orders** in the background.
+- 🎁 **Send gifts** to **individual users** or **channels**.
+- 👥 **Support multiple users**.
+- 🔑 **Connect a user account** to **purchase premium Telegram gifts** or when the bot doesn’t have enough stars.
+- 📊 **View star balances** for all users.
+- 👥 **Role system** (see table).
+
+| Role     | Permissions |
+|----------|-------------|
+| Receiver | Can only receive gifts |
+| Buyer    | Can create orders and charge stars |
+| Admin    | All buyer permissions, plus can add/remove users and change roles |
+
 
 
 ## Installation
@@ -31,20 +41,16 @@ Update the environment variables as needed. At minimum, set your `BOT_TOKEN` and
 
 #### Linux / macOS
 ```bash
-python -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
-mkdir -p data
-python src/main.py
+./scripts/setup.sh
+./scripts/start-bot.sh
 ```
 
-#### Windows (PowerShell)
-```powershell
-python -m venv .venv
-.\.venv\Scripts\Activate.ps1
-pip install -r requirements.txt
-mkdir data
-python src\main.py
+#### Windows (CMD)
+
+
+```CMD
+scripts\setup.bat
+scripts\start-bot.bat
 ```
 
 
@@ -55,15 +61,29 @@ You can also run the bot using Docker. Follow these steps:
 
 1. Rename `.env.example` to `.env` and update the environment variables as needed
 
-2. Build and run the Docker containers using Docker Compose:
+2. Build the Docker image:
 ```bash
-docker compose up --build -d
+docker compose build
 ```
+3. (Optional) Connect the bot to your Telegram account.
+
+  ###### Run this command if you want to link a user account; otherwise, skip this step:
+
+```bash
+docker compose run login_once
+```
+4.  Run the bot container:
+```bash
+docker compose up -d
+```
+
 ## Notes
 
 - To add a **channel** as a receiver: add the bot to the channel and send `/start` command from that channel.  
 - Orders and star balances are persisted in `data/app.db`.  
+- When the Telegram bot fails to buy a gift, it will attempt to purchase it using the connected userbot. This feature is only accessible to the bot owner.
+- ⚠️ This project is under **development** — **Use at your own risk**.
 
 ## License
 
-MIT
+This project is licensed under the [MIT License](LICENSE).
