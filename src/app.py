@@ -3,7 +3,7 @@ from pyrogram.types import Message, PreCheckoutQuery
 from config import config
 from state import user_state, user_data
 from keyboards.reply import get_main_menu
-from database.users_crud import get_user_data, add_user, update_data
+from database.users_crud import get_user, add_user, update_user_data
 from database.transaction_crud import add_transaction
 from database.orders_crud import get_orders
 from handlers.main_menu import handle_start
@@ -17,7 +17,8 @@ from constants.texts import TEXTS
 from constants.roles import Roles
 
 import os
-
+from helpers.notify_gift import notify_test_gift
+from handlers.gifts_handler import handle_buy_gift
 
 os.makedirs("sessions/bot", exist_ok=True)
 app = Client("main_bot", api_id=config.API_ID,
@@ -46,7 +47,7 @@ def init_handlers(app: Client):
     async def start_handler(client, message):
 
         if (message.chat.type == ChatType.CHANNEL):
-            user = await get_user_data(message.chat.id)
+            user = await get_user(message.chat.id)
             if (user):
                 return await message.reply(TEXTS["channel_already_added"].format(message.chat.id))
 
@@ -62,13 +63,13 @@ def init_handlers(app: Client):
         if (user_id not in user_state) or user_id not in user_data:
             user_state[user_id] = None
             user_data[user_id] = {}
-        user = await get_user_data(user_id)
+        user = await get_user(user_id)
         role = Roles.RECEIVER
 
         if user:
             role = Roles(user.role)
             if (user.name == "Unknown"):
-                await update_data(user_id=user_id, name=message.from_user.first_name or "none", username=message.from_user.username or "none")
+                await update_user_data(user_id=user_id, name=message.from_user.first_name or "none", username=message.from_user.username or "none")
         if not user and str(user_id) == str(config.ADMIN_ID):
             await add_user(
                 user_id=user_id,
@@ -83,7 +84,7 @@ def init_handlers(app: Client):
     @app.on_message(filters.command("me"))
     async def profile_handler(client, message):
         user_id = message.from_user.id
-        user = await get_user_data(user_id)
+        user = await get_user(user_id)
         if not user or user.role == Roles.RECEIVER.value:
             await message.reply(TEXTS["profile_user"].format(user_id))
             return
@@ -97,10 +98,14 @@ def init_handlers(app: Client):
 
         await message.reply(TEXTS["profile_full"].format(user.id, user.stars, orders_text))
 
+    @app.on_message(filters.command("test1"))
+    async def test1_handler(client, message):
+        await notify_test_gift(client, message.chat.id)
+
     @app.on_callback_query()
     async def callback_handler(client, callback_query: CallbackQuery):
         user_id = callback_query.from_user.id
-        user = await get_user_data(user_id)
+        user = await get_user(user_id)
 
         if not user and user.role != Roles.ADMIN.value:
             return
@@ -119,12 +124,12 @@ def init_handlers(app: Client):
             await callback_query.answer(TEXTS["unknown_action"], show_alert=True)
 
     @app.on_message(filters.text and filters.private)
-    async def main_handler(client, message):
+    async def main_handler(client: Client, message: Message):
         user_id = message.from_user.id
-        user = await get_user_data(user_id)
+        user = await get_user(user_id)
 
         if (user and user.name == "Unknown"):
-            await update_data(user_id=user_id, name=message.from_user.first_name or "none", username=message.from_user.username or "none")
+            await update_user_data(user_id=user_id, name=message.from_user.first_name or "none", username=message.from_user.username or "none")
         if (user_id not in user_state) or (user_id not in user_data):
             user_state[user_id] = None
             user_data[user_id] = {}
@@ -140,6 +145,11 @@ def init_handlers(app: Client):
             return
 
         try:
+
+            if (message.reply_to_message and message.reply_to_message.text.endswith("^_^")):
+                user_state[user_id] = await handle_buy_gift(client, message, state, user_data, role)
+                return
+
             action = ButtonAction(text)
             if action == ButtonAction.RETURN:
                 user_state[user_id] = None

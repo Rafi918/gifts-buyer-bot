@@ -1,5 +1,5 @@
 from database.orders_crud import add_order, get_orders, remove_order, get_orders_count
-from database.users_crud import get_user_data
+from database.users_crud import get_user
 from constants.texts import TEXTS
 from constants.states import States
 from constants.button_action import ButtonAction
@@ -20,7 +20,7 @@ async def handle_orders(client, message, state, user_data, role):
         if len(parts) == 6 and all(p.isdigit() for p in parts[0:-1]):
             min_stars, max_stars, min_supply, max_supply, count, receiver_id = parts
 
-            receiver = await get_user_data(receiver_id)
+            receiver = await get_user(receiver_id)
 
             if not receiver:
                 await message.reply(TEXTS["user_not_found"].format(receiver_id), reply_markup=get_return_menu())
@@ -31,11 +31,12 @@ async def handle_orders(client, message, state, user_data, role):
             }
 
             receiver_str = (
-                f"<a href='https://t.me/{receiver.username}'>{receiver.name}</a>"
+                TEXTS["user_link"].format(
+                    username=receiver.username, name=receiver.name)
                 if receiver.username and receiver.username != "none"
                 else receiver.name
             )
-            await message.reply(TEXTS["add_order_confirm"].format(min_stars, max_stars, min_supply, max_supply, receiver_str, receiver_id, count), reply_markup=get_confirmation_menu())
+            await message.reply(TEXTS["add_order_confirm"].format(min_stars, max_stars, min_supply, max_supply, receiver_str, receiver.id, count), reply_markup=get_confirmation_menu())
             return States.CONFIRMING_ORDER
 
         await message.reply(TEXTS["invalid_format"], reply_markup=get_return_menu())

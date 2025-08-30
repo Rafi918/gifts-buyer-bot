@@ -25,3 +25,17 @@ class States(str, Enum):
     AWAITING_USER_ID_FOR_REMOVE = "awaiting_user_id_for_remove"
     AWAITING_USER_ID_FOR_ROLE = "awaiting_user_id_for_role"
     AWAITING_NEW_ROLE = "awaiting_new_role"
+
+    # Channels
+    CHANNELS_MENU = "channels_menu"
+    AWAITING_CHANNEL_ID_FOR_ADD = "awaiting_channel_for_add"
+    AWAITING_CHANNEL_ID_FOR_REMOVE = "awaiting_channel_id_for_remove"
+
+    # Relayers
+    RELAYERS_MENU = "relayers_menu"
+    AWAITING_RELAYER_ID_FOR_ADD = "awaiting_relayer_id_for_add"
+    AWAITING_RELAYER_ID_FOR_REMOVE = "awaiting_relayer_id_for_remove"
+
+    # Buying Gifts
+    CHOOSING_GIFT_RECIPIENT = "choosing_gift_recipient"
+    CONFIRMING_GIFT_PURCHASE = "confirming_gift_purchase"

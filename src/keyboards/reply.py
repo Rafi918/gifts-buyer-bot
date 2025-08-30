@@ -13,12 +13,15 @@ def get_main_menu(role: Roles) -> ReplyKeyboardMarkup:
         return build_keyboard([
             ["Charge Stars", "Refund Stars"],
             ["Orders", "Send Gift"],
+            ["Channels", "Relayers"],
             ["Users"]
         ])
     else:
         return build_keyboard([
             ["Charge Stars", "Refund Stars"],
-            ["Orders", "Send Gift"]
+            ["Orders", "Send Gift"],
+            ["Channels", "Relayers"],
+
         ])
 
 
@@ -60,5 +63,19 @@ def get_users_menu():
 def get_role_keyboard():
     return build_keyboard([
         Roles.values(),
+        ["Return"]
+    ])
+
+
+def get_channels_menu():
+    return build_keyboard([
+        ["Add Channel", "Remove Channel"],
+        ["Return"]
+    ])
+
+
+def get_relayers_menu():
+    return build_keyboard([
+        ["Add Relayer", "Remove Relayer"],
         ["Return"]
     ])
