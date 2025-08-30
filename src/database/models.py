@@ -8,6 +8,22 @@ class User(models.Model):
     role = fields.CharField(max_length=30)
     stars = fields.IntField(default=0)
 
+    channels = fields.ManyToManyField(
+        "models.User",
+        related_name="channels_",
+        through="user_channel",
+        forward_key="user",
+        backward_key="channel",
+    )
+
+    relayers = fields.ManyToManyField(
+        "models.User",
+        related_name="as_relayer_for",
+        through="user_relayer",
+        forward_key="user",
+        backward_key="relayer",
+    )
+
     class Meta:
         table = "users"
         constraints = [

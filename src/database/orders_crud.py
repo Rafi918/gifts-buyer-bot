@@ -1,16 +1,21 @@
 from .models import Order
 from tortoise.expressions import F
+from .users_crud import get_user
 
 
-async def add_order(user_id, min_stars, max_stars, min_supply, max_supply, count, receiver_id):
-    return await Order.create(
+async def add_order(user_id, min_stars, max_stars, min_supply, max_supply, count, receiver_identifier):
+    receiver = await get_user(receiver_identifier)
+    if not receiver:
+        return False, " Receiver not found"
+
+    return True, await Order.create(
         user_id=user_id,
         min_stars=min_stars,
         max_stars=max_stars,
         min_supply=min_supply,
         max_supply=max_supply,
         count=count,
-        receiver_id=receiver_id
+        receiver_id=receiver.id
     )
 
 

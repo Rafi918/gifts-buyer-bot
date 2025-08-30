@@ -115,12 +115,8 @@ async def handle_users(client, message, state, user_data, role):
         return States.AWAITING_USER_ID_FOR_REMOVE
 
     if state == States.AWAITING_USER_ID_FOR_REMOVE:
-        if not text.isdigit():
-            await message.reply(TEXTS["invalid_user_id"],
-                                reply_markup=get_return_menu())
-            return States.AWAITING_USER_ID_FOR_REMOVE
 
-        removed = await remove_user(int(text))
+        removed = await remove_user(text)
         if removed:
             await message.reply(TEXTS["user_removed"].format(text), reply_markup=get_users_menu())
         else:
@@ -133,14 +129,11 @@ async def handle_users(client, message, state, user_data, role):
         return States.AWAITING_USER_ID_FOR_ROLE
 
     if state == States.AWAITING_USER_ID_FOR_ROLE:
-        if text.isdigit():
-            user_data[user_id]["target_user_id"] = text
-            await message.reply(TEXTS["choose_new_role"], reply_markup=get_role_keyboard())
-            return States.AWAITING_NEW_ROLE
-        else:
-            await message.reply(TEXTS["invalid_user_id"],
-                                reply_markup=get_return_menu())
-            return States.AWAITING_USER_ID_FOR_ROLE
+
+        user_data[user_id]["target_user_id"] = text
+        await message.reply(TEXTS["choose_new_role"], reply_markup=get_role_keyboard())
+        return States.AWAITING_NEW_ROLE
+
 
     if state == States.AWAITING_NEW_ROLE:
         if text in Roles.values():

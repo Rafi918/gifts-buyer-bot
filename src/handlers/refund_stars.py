@@ -1,10 +1,11 @@
 from keyboards.reply import get_return_menu, get_main_menu
-from database.users_crud import get_user_data, deduct_user_stars
+from database.users_crud import get_user, deduct_user_stars
 from database.transaction_crud import get_transaction, refund_transaction
 from constants.texts import TEXTS
 from constants.states import States
 from database.models import Transaction, User
-from logger import logger   
+from logger import logger
+
 
 async def handle_refund_stars(client, message, state, user_data, role):
     user_id = message.from_user.id
@@ -25,7 +26,7 @@ async def handle_refund_stars(client, message, state, user_data, role):
                 )
                 return None
 
-            user_data: User = await get_user_data(user_id)
+            user_data: User = await get_user(user_id)
 
             if (not user_data or user_data.stars < transaction.total_amount):
                 await message.reply(
