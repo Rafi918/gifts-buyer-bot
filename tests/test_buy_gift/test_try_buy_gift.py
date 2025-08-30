@@ -21,6 +21,7 @@ async def test_try_buying_gift_bot_success(monkeypatch):
         id=100,
         receiver_id=555,
         user=types.SimpleNamespace(id=42, stars=50),
+        completed_count=0, count=1
     )
 
     updated_order = types.SimpleNamespace(id=100, user=order.user)
@@ -45,6 +46,7 @@ async def test_try_buying_gift_bot_fails_fallback_userbot(monkeypatch):
         id=200,
         receiver_id=666,
         user=types.SimpleNamespace(id=77, stars=5),
+        completed_count=0, count=1
     )
 
     buy_bot = AsyncMock(side_effect=RuntimeError("bot error"))
@@ -70,6 +72,7 @@ async def test_try_buying_gift_bot_fails_no_fallback_different_user(monkeypatch)
         id=300,
         receiver_id=777,
         user=types.SimpleNamespace(id=10, stars=5),
+        completed_count=0, count=1
     )
 
     buy_bot = AsyncMock(side_effect=RuntimeError("bot error"))
@@ -94,6 +97,7 @@ async def test_try_buying_gift_bot_fails_no_fallback_none_id(monkeypatch):
         id=400,
         receiver_id=888,
         user=types.SimpleNamespace(id=123, stars=5),
+        completed_count=0, count=1
     )
 
     buy_bot = AsyncMock(side_effect=RuntimeError("bot error"))
@@ -118,6 +122,7 @@ async def test_try_buying_gift_bot_and_userbot_fail(monkeypatch):
         id=500,
         receiver_id=999,
         user=types.SimpleNamespace(id=321, stars=5),
+        completed_count=0, count=1
     )
 
     buy_bot = AsyncMock(side_effect=RuntimeError("bot error"))
