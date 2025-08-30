@@ -1,36 +1,13 @@
 import asyncio
 import aiohttp
-import json
-from database.models import Order
-from database.orders_crud import get_all_orders, increment_completed_count
-from database.users_crud import deduct_user_stars, get_user_data
-from config import config
-from logger import worker_logger
+from database.orders_crud import get_all_orders
 from helpers.fetch_gifts import fetch_gifts
+from helpers.notify_gift import notify_users
+from helpers.buy_gift import try_buying_gift
 from app import app
 from user_bot import user_bot
-from worker.errors import InsufficientStarsError
-
-
-async def buy_gift_bot(gift, order: Order):
-
-    if gift['price'] > order.user.stars:
-        raise InsufficientStarsError("User does not have enough stars")
-
-    await app.send_gift(
-        chat_id=order.receiver_id,
-        gift_id=gift['id']
-    )
-    if (await deduct_user_stars(
-            order.user.id, gift['price'])):
-        order = await increment_completed_count(order.id)
-        order.user = await get_user_data(order.user.id)
-
-
-async def buy_gift_userbot(gift, order: Order):
-    await user_bot.send_gift(
-        chat_id=order.receiver_id, gift_id=gift['id'])
-    order = await increment_completed_count(order.id)
+from config import config
+from logger import worker_logger
 
 
 async def fulfill_orders(user_bot_id):
@@ -46,16 +23,18 @@ async def fulfill_orders(user_bot_id):
         gifts = [gift for gift in gifts if gift["is_limited"]
                  and gift["available_amount"] > 0]
 
-        if not gifts:
-            worker_logger.info(
-                "No gifts fetched, skipping order fulfillment.")
-            return
-
         gifts.sort(key=lambda g: g["total_amount"])
+
+        for gift in gifts:
+            await notify_users(app, gift)
+
+        if not gifts:
+            worker_logger.info("No gifts fetched, skipping order fulfillment.")
+            return
 
         for order in orders:
 
-            if order.completed_count >= order.count:
+            if order.completed_count >= order.count or gift['price'] == -1:
                 continue
 
             worker_logger.info(
@@ -70,28 +49,12 @@ async def fulfill_orders(user_bot_id):
                 needed = order.count - order.completed_count
 
                 for i in range(needed):
-
-                    worker_logger.info(
-                        f"Gift ID: {gift['id']} → Receiver: {order.receiver_id} ")
-                    try:
-                        await buy_gift_bot(gift, order)
-                    except Exception as e:
-                        worker_logger.error(
-                            f"Error sending gift {gift['id']} to {order.receiver_id} by BOT: {e}")
-
-                        if (not user_bot_id or user_bot_id != order.user.id):
-                            continue
-                        try:
-                            await buy_gift_userbot(gift, order)
-                        except Exception as e:
-                            worker_logger.error(
-                                f"Error sending gift {gift['id']} to {order.receiver_id} by UserBOT: {e}")
+                    await try_buying_gift(app, user_bot, gift, order, user_bot_id)
 
                 if order.completed_count >= order.count:
                     break
             else:
-                worker_logger.info(
-                    f"No suitable gift for order ID:{order.id}")
+                worker_logger.info(f"No suitable gift for order ID:{order.id}")
 
 
 async def wait_for_clients():
@@ -112,7 +75,11 @@ async def wait_for_clients():
 async def gift_worker_loop():
 
     user_bot_id = await wait_for_clients()
-    worker_logger.info("Gift Worker started...")
+    if (user_bot_id):
+        worker_logger.info(
+            f"Gift Worker Bot and UserBOT {user_bot_id} started...")
+    else:
+        worker_logger.info("Gift Worker Bot started...")
 
     while True:
         try:
