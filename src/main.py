@@ -11,11 +11,26 @@ import os
 nest_asyncio.apply()
 
 
+SESSION_PATH = "sessions/user"
+
+
 async def userbot_loop():
-    if (os.path.exists("sessions/user")):
-        await user_bot.start()
-        await idle()
-        await user_bot.stop()
+    if os.path.exists(SESSION_PATH):
+        try:
+            await user_bot.start()
+            await idle()
+        except Exception as e:
+            logger.error(f"UserBOT error: {e}")
+            try:
+                os.remove(SESSION_PATH)
+                logger.info("Invalid session removed, please re-login.")
+            except Exception as rm_err:
+                logger.error(f"Failed to remove session: {rm_err}")
+        finally:
+            if user_bot.is_connected:
+                await user_bot.stop()
+    else:
+        logger.warning("No session found. Please login first.")
 
 
 async def bot_loop():
