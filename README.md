@@ -8,15 +8,18 @@ It supports sending gifts to both **individual users** and **channels**, and can
 
 ## Features:
 
-- ⭐ **Charge and refund stars**.
-- 🧾 **Create and store orders** based on **gift price** and **supply**.
-- 🔄 **Retrieve gifts data** from upstream Telegram user bot via API.
-- ⚙️ **Process and fulfill orders** in the background.
-- 🎁 **Send gifts** to **individual users** or **channels**.
-- 👥 **Support multiple users**.
-- 🔑 **Connect a user account** to **purchase premium Telegram gifts** or when the bot doesn’t have enough stars.
-- 📊 **View star balances** for all users.
-- 👥 **Role system** (see table).
+- ⭐ **Charge & Refund Stars** – Manage star balances for each user.  
+- 🧾 **Order Management** – Create and store orders based on **gift price** and **supply**.  
+- 🔄 **Gift Retrieval** – Fetch gifts from the upstream Telegram userbot via API.  
+- ⚙️ **Background Fulfillment** – Process and complete orders automatically.  
+- 🎁 **Gift Delivery** – Send gifts to **individual users** or **channels**.  
+- 🔔 **Gift Notifications** – Get notified instantly when new gifts are available.  
+- ⚡ **Rapid Purchase Mode** – Buy new gifts in large amounts before they run out.  
+- 👥 **Relay Mode** – Act as a relayer and buy gifts on behalf of your friends.  
+- 👥 **Multi-User Support** – Multiple users can use the system concurrently.  
+- 🔑 **Userbot Fallback** – Connect your own Telegram account to purchase  premium gifts 
+- 📊 **Star Balances** – View and manage balances for all users.  
+- 🛡 **Role System** – Assign roles with different permissions (see table).  
 
 | Role     | Permissions |
 |----------|-------------|
@@ -74,7 +77,8 @@ docker compose run login_once
 ```
 4.  Run the bot container:
 ```bash
-docker compose up -d
+docker compose up -d gifts-buyer-bot
+
 ```
 
 ## Notes
